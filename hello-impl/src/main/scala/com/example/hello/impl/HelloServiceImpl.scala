@@ -15,5 +15,4 @@ class HelloServiceImpl(echo: Echo)(implicit ex:ExecutionContext) extends HelloSe
     echo.echo(EchoMessage(s"Hello $id")).map(_.payload).map(s => s"Received [$s] via gRPC.")
   }
 
-
 }

@@ -38,6 +38,8 @@ lazy val `hello-impl` = (project in file("hello-impl"))
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`hello-api`)
 
+
+
 lagomKafkaEnabled in ThisBuild := false
 lagomCassandraEnabled in ThisBuild := false
 
