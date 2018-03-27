@@ -1,4 +1,4 @@
-# LAGOM TO gRPC lab 
+# Lagom to gRPC lab 
 
 This project uses a HelloService from Lagom's `g8` to send a request to the server provided by https://github.com/ignasi35/akka-grpc-labs.
 
