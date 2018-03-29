@@ -6,6 +6,25 @@ Clone both repos. Start the server in https://github.com/ignasi35/akka-grpc-labs
 
 Finally test using `curl http://localhost:9000/api/hello/arthur`
 
+## Purpose
+
+The final goal of this lab is to find potential ways so that building a gRPC client that runs within a Lagom service is as simple as:
+
+```scala
+abstract class HelloApplication(context: LagomApplicationContext)
+  extends LagomApplication(context)
+    with AhcWSComponents
+    with GrpcComponents { // Add this
+
+  val client: Echo = wire[EchoClient]  // Add this to use a client to a remote GrpcEchoServer
+
+  // regular Lagom stuff creating the Service.
+  override lazy val lagomServer = serverFor[HelloService](wire[HelloServiceImpl])
+}
+
+```
+
+
 ## Code overview
 
 All the interesting code is on `hello-impl`
