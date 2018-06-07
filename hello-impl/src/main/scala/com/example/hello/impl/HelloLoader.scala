@@ -1,15 +1,14 @@
 package com.example.hello.impl
 
-import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.example.hello.api.HelloService
-import com.example.internal.{ GrpcChannelProvider, GrpcComponents, PooledGrpcChannelProvider }
+import com.example.internal.{ GrpcClientSettingsProvider, GrpcComponents }
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
 import com.lightbend.lagom.scaladsl.server._
 import com.softwaremill.macwire._
-import io.akka.grpc.{ Echo, EchoMessage }
+import example.myapp.helloworld.grpc.{ GreeterService, HelloReply, HelloRequest }
 import play.api.libs.ws.ahc.AhcWSComponents
 
 import scala.concurrent.{ ExecutionContext, Future }
@@ -35,7 +34,7 @@ abstract class HelloApplication(context: LagomApplicationContext)
   // Bind the service that this server provides
   override lazy val lagomServer = serverFor[HelloService](wire[HelloServiceImpl])
 
-  val client: Echo = wire[EchoClient]
+  val client: GreeterService = wire[GreeterServiceClient]
 
 }
 
@@ -45,12 +44,12 @@ abstract class HelloApplication(context: LagomApplicationContext)
 // if the Lagom generator uses the io.lagom.grpc package.
 //
 // Implementation note: mat and ex are not implicit so `macwire` can set them
-class EchoClient(channelProvider: GrpcChannelProvider)(mat: Materializer, ex: ExecutionContext) extends Echo {
-  private implicit val m = mat
-  private implicit val e = ex
+class GreeterServiceClient(grpcClientSettingsProvider: GrpcClientSettingsProvider)(mat: Materializer, ex: ExecutionContext) extends GreeterService {
+  private implicit val materializer = mat
+  private implicit val executionContext = ex
 
-  override def echo(in: EchoMessage): Future[EchoMessage] =
-    channelProvider.withChannel(Echo.name) { ch =>
-      io.akka.grpc.EchoClient(ch).echo(in)
+  override def sayHello(in: HelloRequest): Future[HelloReply] =
+    grpcClientSettingsProvider.withSettings(GreeterService.name) { settings =>
+      example.myapp.helloworld.grpc.GreeterServiceClient(settings).sayHello(in)
     }
 }

@@ -12,7 +12,7 @@ val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
 
 lazy val `lagom-grpc-labs` = (project in file("."))
-  .aggregate( `hello-api`, `hello-impl`)
+  .aggregate(`hello-api`, `hello-impl`)
 
 lazy val `hello-api` = (project in file("hello-api"))
   .settings(
@@ -31,9 +31,8 @@ lazy val `hello-impl` = (project in file("hello-impl"))
   )
   .settings(
     PB.protoSources in Compile += target.value / "protobuf",
-    (akkaGrpcCodeGenerators in Compile) := Seq(
-      GeneratorAndSettings(ScalaClientCodeGenerator, (akkaGrpcCodeGeneratorSettings in Compile).value)),
-    javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.6" % "runtime",
+    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
+    javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.7" % "runtime",
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`hello-api`)
@@ -43,4 +42,4 @@ lazy val `hello-impl` = (project in file("hello-impl"))
 lagomKafkaEnabled in ThisBuild := false
 lagomCassandraEnabled in ThisBuild := false
 
-lagomUnmanagedServices in ThisBuild += ("echo.Echo" -> "https://127.0.0.1:8443")
+lagomUnmanagedServices in ThisBuild += ("helloworld.GreeterService" -> "http://127.0.0.1:8080")
