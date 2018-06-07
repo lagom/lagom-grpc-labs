@@ -1,6 +1,7 @@
 package com.example.internal
 
 import akka.actor.{ Actor, Props, Stash }
+import akka.grpc.GrpcClientSettings
 import akka.util.Timeout
 import com.example.grpc.tools.ChannelBuilderUtils
 import com.lightbend.lagom.scaladsl.api.ServiceLocator

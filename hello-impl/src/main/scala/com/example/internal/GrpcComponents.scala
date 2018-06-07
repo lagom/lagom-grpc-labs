@@ -15,6 +15,6 @@ trait GrpcComponents {
   def materializer: Materializer
   def executionContext: ExecutionContext
 
-  val grpcChannelFactory: GrpcChannelProvider =
-    new PooledGrpcChannelProvider(serviceLocator)(actorSystem, materializer, executionContext)
+  val grpcChannelFactory: GrpcClientSettingsProvider =
+    new PooledGrpcClientSettingsProvider(serviceLocator)(actorSystem, materializer, executionContext)
 }
