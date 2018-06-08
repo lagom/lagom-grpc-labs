@@ -37,7 +37,12 @@ lazy val `hello-impl` = (project in file("hello-impl"))
 
 
 lazy val `play-app` = (project in file("play-app"))
-  .enablePlugins(PlayScala, LagomPlay, JavaAgent, AkkaGrpcPlugin)
+  .enablePlugins(
+    PlayScala,
+    LagomPlay,
+//    JavaAgent,  // unnecessary because PlayAkkaHttp2Support already enables it
+    AkkaGrpcPlugin,
+    PlayAkkaHttp2Support)
   .disablePlugins(PlayLayoutPlugin)
   .settings(
     libraryDependencies ++= Seq(
@@ -46,14 +51,14 @@ lazy val `play-app` = (project in file("play-app"))
   )
   .settings(
     PB.protoSources in Compile += target.value / "protobuf",
-    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
+    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client, AkkaGrpc.Server),
     javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.7" % "runtime",
   )
   .settings(lagomForkedTestSettings: _*)
 
-
+lagomServicesPortRange in ThisBuild := PortRange(50000, 51000)
 
 lagomKafkaEnabled in ThisBuild := false
 lagomCassandraEnabled in ThisBuild := false
 
-lagomUnmanagedServices in ThisBuild += ("helloworld.GreeterService" -> "http://127.0.0.1:8080")
+lagomUnmanagedServices in ThisBuild += ("helloworld.GreeterService" -> "http://127.0.0.1:3939")
