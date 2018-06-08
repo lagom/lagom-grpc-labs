@@ -10,7 +10,6 @@ class HelloController(client: GreeterService, controllerComponents: ControllerCo
 
   def hello() = Action.async { implicit req =>
     client.sayHello(HelloRequest(req.path)).map(rp => Results.Ok(rp.message))
-//   Future.successful(Results.Ok("123"))
   }
 
 }

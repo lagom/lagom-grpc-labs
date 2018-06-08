@@ -43,17 +43,18 @@ abstract class HelloApplication(context: Context)
     wire[Routes]
   }
 
+  val remotePort : Int = 8080
   val client: GreeterService = wire[GreeterServiceClient]
 
   val hello: HelloController = wire[HelloController]
 
 }
 
-class GreeterServiceClient(mat: Materializer, ex: ExecutionContext) extends GreeterService {
+class GreeterServiceClient(remotePort:Int)(mat: Materializer, ex: ExecutionContext) extends GreeterService {
   private implicit val materializer = mat
   private implicit val executionContext = ex
 
-  val settings = GrpcClientSettings("localhost", 8080)
+  val settings = GrpcClientSettings("127.0.0.1", remotePort)
     .withOverrideAuthority("foo.test.google.fr")
     .withCertificate("ca.pem")
 

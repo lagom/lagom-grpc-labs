@@ -21,7 +21,9 @@ lazy val `hello-api` = (project in file("hello-api"))
   )
 
 lazy val `hello-impl` = (project in file("hello-impl"))
-  .enablePlugins(LagomScala, JavaAgent, AkkaGrpcPlugin)
+  .enablePlugins(LagomScala,
+//    JavaAgent,
+    AkkaGrpcPlugin)
   .settings(
     libraryDependencies ++= Seq(
       macwire
@@ -29,15 +31,21 @@ lazy val `hello-impl` = (project in file("hello-impl"))
   )
   .settings(
     PB.protoSources in Compile += target.value / "protobuf",
-    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-    javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.7" % "runtime",
-  )
+    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client, AkkaGrpc.Server),
+//    javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.7" % "runtime",
+    )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`hello-api`)
 
+// !!! JavaAgent is not triggering because lagom's runAll ir not a regular sbt run but
+// a custom taskKey. The current solution is to add the `javaagent` argument into
+// .jvmopts and look in another direction.
+// We're leaving JavaAgent and "javaAgents +=" enabled to trigger the artifact download.
 
 lazy val `play-app` = (project in file("play-app"))
-  .enablePlugins(PlayScala, LagomPlay, JavaAgent, AkkaGrpcPlugin)
+  .enablePlugins(PlayScala, LagomPlay,
+    JavaAgent,
+    AkkaGrpcPlugin)
   .disablePlugins(PlayLayoutPlugin)
   .settings(
     libraryDependencies ++= Seq(
@@ -51,7 +59,7 @@ lazy val `play-app` = (project in file("play-app"))
   )
   .settings(lagomForkedTestSettings: _*)
 
-
+lagomServicesPortRange in ThisBuild := PortRange(50000, 51000)
 
 lagomKafkaEnabled in ThisBuild := false
 lagomCassandraEnabled in ThisBuild := false
