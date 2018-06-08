@@ -1,7 +1,6 @@
 import com.lightbend.sbt.javaagent.JavaAgent.JavaAgentKeys.javaAgents
 import akka.grpc.gen.scaladsl.ScalaClientCodeGenerator
 
-
 organization in ThisBuild := "com.example"
 version in ThisBuild := "1.0-SNAPSHOT"
 
@@ -12,7 +11,7 @@ val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
 
 lazy val `lagom-grpc-labs` = (project in file("."))
-  .aggregate(`hello-api`, `hello-impl`)
+  .aggregate(`hello-api`, `hello-impl`, `play-app`)
 
 lazy val `hello-api` = (project in file("hello-api"))
   .settings(
@@ -25,8 +24,7 @@ lazy val `hello-impl` = (project in file("hello-impl"))
   .enablePlugins(LagomScala, JavaAgent, AkkaGrpcPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      macwire,
-      scalaTest
+      macwire
     ),
   )
   .settings(
@@ -36,6 +34,22 @@ lazy val `hello-impl` = (project in file("hello-impl"))
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(`hello-api`)
+
+
+lazy val `play-app` = (project in file("play-app"))
+  .enablePlugins(PlayScala, LagomPlay, JavaAgent, AkkaGrpcPlugin)
+  .disablePlugins(PlayLayoutPlugin)
+  .settings(
+    libraryDependencies ++= Seq(
+      macwire
+    ),
+  )
+  .settings(
+    PB.protoSources in Compile += target.value / "protobuf",
+    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
+    javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.7" % "runtime",
+  )
+  .settings(lagomForkedTestSettings: _*)
 
 
 
