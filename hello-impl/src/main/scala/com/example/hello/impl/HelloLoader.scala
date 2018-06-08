@@ -1,6 +1,7 @@
 package com.example.hello.impl
 
 import akka.stream.Materializer
+import com.example.hack.EmbeddedAkkaGrpcServer
 import com.example.hello.api.HelloService
 import com.example.internal.{ GrpcClientSettingsProvider, GrpcComponents }
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
@@ -36,13 +37,13 @@ abstract class HelloApplication(context: LagomApplicationContext)
 
   val client: GreeterService = wire[GreeterServiceClient]
 
+  val remotePort:Int = 8080
+
+  private val akkaGrpcServer: EmbeddedAkkaGrpcServer = wire[EmbeddedAkkaGrpcServer]
+  applicationLifecycle.addStopHook(() => akkaGrpcServer.shutdown)
+
 }
 
-// TODO: the code below would  be generated.
-//
-// EchoClient is a reused name which we may be able to do
-// if the Lagom generator uses the io.lagom.grpc package.
-//
 // Implementation note: mat and ex are not implicit so `macwire` can set them
 class GreeterServiceClient(grpcClientSettingsProvider: GrpcClientSettingsProvider)(mat: Materializer, ex: ExecutionContext) extends GreeterService {
   private implicit val materializer = mat

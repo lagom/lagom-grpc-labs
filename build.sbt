@@ -21,7 +21,32 @@ lazy val `hello-api` = (project in file("hello-api"))
   )
 
 lazy val `hello-impl` = (project in file("hello-impl"))
-  .enablePlugins(LagomScala, JavaAgent, AkkaGrpcPlugin)
+  .enablePlugins(LagomScala,
+//    JavaAgent,
+    AkkaGrpcPlugin)
+  .settings(
+    libraryDependencies ++= Seq(
+      macwire
+    ),
+  )
+  .settings(
+    PB.protoSources in Compile += target.value / "protobuf",
+    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client, AkkaGrpc.Server),
+//    javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.7" % "runtime",
+    )
+  .settings(lagomForkedTestSettings: _*)
+  .dependsOn(`hello-api`)
+
+// !!! JavaAgent is not triggering because lagom's runAll ir not a regular sbt run but
+// a custom taskKey. The current solution is to add the `javaagent` argument into
+// .jvmopts and look in another direction.
+// We're leaving JavaAgent and "javaAgents +=" enabled to trigger the artifact download.
+
+lazy val `play-app` = (project in file("play-app"))
+  .enablePlugins(PlayScala, LagomPlay,
+    JavaAgent,
+    AkkaGrpcPlugin)
+  .disablePlugins(PlayLayoutPlugin)
   .settings(
     libraryDependencies ++= Seq(
       macwire
@@ -33,32 +58,10 @@ lazy val `hello-impl` = (project in file("hello-impl"))
     javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.7" % "runtime",
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(`hello-api`)
-
-
-lazy val `play-app` = (project in file("play-app"))
-  .enablePlugins(
-    PlayScala,
-    LagomPlay,
-//    JavaAgent,  // unnecessary because PlayAkkaHttp2Support already enables it
-    AkkaGrpcPlugin,
-    PlayAkkaHttp2Support)
-  .disablePlugins(PlayLayoutPlugin)
-  .settings(
-    libraryDependencies ++= Seq(
-      macwire
-    ),
-  )
-  .settings(
-    PB.protoSources in Compile += target.value / "protobuf",
-    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client, AkkaGrpc.Server),
-    javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.7" % "runtime",
-  )
-  .settings(lagomForkedTestSettings: _*)
 
 lagomServicesPortRange in ThisBuild := PortRange(50000, 51000)
 
 lagomKafkaEnabled in ThisBuild := false
 lagomCassandraEnabled in ThisBuild := false
 
-lagomUnmanagedServices in ThisBuild += ("helloworld.GreeterService" -> "http://127.0.0.1:3939")
+lagomUnmanagedServices in ThisBuild += ("helloworld.GreeterService" -> "http://127.0.0.1:8080")

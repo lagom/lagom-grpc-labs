@@ -19,7 +19,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 /**
   * This is a hack! Do not do this in your production code!!!
   */
-class EmbeddedAkkaGrpcServer() {
+class EmbeddedAkkaGrpcServer(remotePort:Int) {
 
   // important to enable HTTP/2 in ActorSystem's config
   val conf = ConfigFactory.parseString("akka.http.server.preview.enable-http2 = on")
@@ -34,7 +34,7 @@ class EmbeddedAkkaGrpcServer() {
   private val eventualBinding: Future[Http.ServerBinding] = Http().bindAndHandleAsync(
     service,
     interface = "127.0.0.1",
-    port = 3939,
+    port = remotePort,
     connectionContext = serverHttpContext()
   )
   eventualBinding.foreach { binding =>

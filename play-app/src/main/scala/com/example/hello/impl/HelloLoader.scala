@@ -1,9 +1,7 @@
 package com.example.hello.impl
 
-import akka.actor.CoordinatedShutdown
 import akka.grpc.GrpcClientSettings
 import akka.stream.Materializer
-import com.example.hack.EmbeddedAkkaGrpcServer
 import com.lightbend.lagom.scaladsl.api.{ LagomConfigComponent, ServiceAcl, ServiceInfo }
 import com.lightbend.lagom.scaladsl.client.LagomServiceClientComponents
 import com.lightbend.lagom.scaladsl.devmode.LagomDevModeComponents
@@ -45,20 +43,18 @@ abstract class HelloApplication(context: Context)
     wire[Routes]
   }
 
+  val remotePort : Int = 8080
   val client: GreeterService = wire[GreeterServiceClient]
 
   val hello: HelloController = wire[HelloController]
 
-  private val akkaGrpcServer: EmbeddedAkkaGrpcServer = wire[EmbeddedAkkaGrpcServer]
-
-  applicationLifecycle.addStopHook(() => akkaGrpcServer.shutdown)
 }
 
-class GreeterServiceClient(mat: Materializer, ex: ExecutionContext) extends GreeterService {
+class GreeterServiceClient(remotePort:Int)(mat: Materializer, ex: ExecutionContext) extends GreeterService {
   private implicit val materializer = mat
   private implicit val executionContext = ex
 
-  val settings = GrpcClientSettings("127.0.0.1", 3939)
+  val settings = GrpcClientSettings("127.0.0.1", remotePort)
     .withOverrideAuthority("foo.test.google.fr")
     .withCertificate("ca.pem")
 
