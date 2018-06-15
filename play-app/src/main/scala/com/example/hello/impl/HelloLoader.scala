@@ -56,7 +56,7 @@ class GreeterServiceClient(remotePort:Int)(mat: Materializer, ex: ExecutionConte
 
   val settings = GrpcClientSettings("127.0.0.1", remotePort)
     .withOverrideAuthority("foo.test.google.fr")
-    .withCertificate("ca.pem")
+    .withTrustedCaCertificate("ca.pem")
 
   override def sayHello(in: HelloRequest): Future[HelloReply] =
     example.myapp.helloworld.grpc.GreeterServiceClient(settings).sayHello(in)

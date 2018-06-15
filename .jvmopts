@@ -1,1 +1,1 @@
--javaagent:/Users/ignasi/.ivy2/cache/org.mortbay.jetty.alpn/jetty-alpn-agent/jars/jetty-alpn-agent-2.0.7.jar
+-javaagent:lib/jetty-alpn-agent-2.0.7.ja

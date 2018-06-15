@@ -24,7 +24,7 @@ class PooledGrpcClientSettingsProvider(serviceLocator: ServiceLocator)(implicit 
       .map { uri =>
         GrpcClientSettings(uri.getHost, uri.getPort)
           .withOverrideAuthority("foo.test.google.fr")
-          .withCertificate("ca.pem")
+          .withTrustedCaCertificate("ca.pem")
       }
       .map(Future.successful)
       .getOrElse(Future.failed(new RuntimeException(s"Service $name not found.")))
